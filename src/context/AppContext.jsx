@@ -6,7 +6,14 @@ import {
   fetchCloudAdhesions, saveCloudAdhesion,
   deleteCloudAdhesion, updateAdhesionStatus,
   fetchCloudAuditLogs, saveCloudAuditLog,
-  deleteOldCloudAuditLogs
+  deleteOldCloudAuditLogs,
+  fetchCloudAnnouncements, createCloudAnnouncement, updateCloudAnnouncement, deleteCloudAnnouncement,
+  fetchCloudTeam, createCloudTeamMember, updateCloudTeamMember, deleteCloudTeamMember,
+  fetchCloudActivities, createCloudActivity, updateCloudActivity, deleteCloudActivity,
+  fetchCloudGallery, createCloudGalleryPhoto, deleteCloudGalleryPhoto,
+  fetchCloudPartners, createCloudPartner, deleteCloudPartner,
+  fetchCloudEvents, createCloudEvent, updateCloudEvent, deleteCloudEvent,
+  fetchCloudSettings, saveCloudSettings
 } from '../services/dbService';
 
 export const AppContext = createContext();
@@ -505,17 +512,184 @@ export const AppProvider = ({ children }) => {
         }
       };
 
+      const loadAnnouncements = async () => {
+        try {
+          const cloudAnns = await fetchCloudAnnouncements(cloudConfig);
+          if (cloudAnns.length === 0) {
+            // Auto-seed defaults if table is empty
+            for (const item of defaultAnnouncements) {
+              const { id, ...payload } = item;
+              await createCloudAnnouncement(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudAnnouncements(cloudConfig);
+            setAnnouncements(reloaded);
+          } else {
+            setAnnouncements(cloudAnns);
+          }
+        } catch (e) {
+          console.error("Échec du chargement des actualités Supabase", e);
+        }
+      };
+
+      const loadTeam = async () => {
+        try {
+          const cloudTeam = await fetchCloudTeam(cloudConfig);
+          if (cloudTeam.length === 0) {
+            for (const item of defaultTeam) {
+              const { id, ...payload } = item;
+              await createCloudTeamMember(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudTeam(cloudConfig);
+            setTeam(reloaded);
+          } else {
+            setTeam(cloudTeam);
+          }
+        } catch (e) {
+          console.error("Échec du chargement de l'équipe Supabase", e);
+        }
+      };
+
+      const loadActivities = async () => {
+        try {
+          const cloudActs = await fetchCloudActivities(cloudConfig);
+          if (cloudActs.length === 0) {
+            for (const item of defaultActivities) {
+              const { id, ...payload } = item;
+              await createCloudActivity(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudActivities(cloudConfig);
+            setActivities(reloaded);
+          } else {
+            setActivities(cloudActs);
+          }
+        } catch (e) {
+          console.error("Échec du chargement des activités Supabase", e);
+        }
+      };
+
+      const loadGallery = async () => {
+        try {
+          const cloudGal = await fetchCloudGallery(cloudConfig);
+          if (cloudGal.length === 0) {
+            for (const item of defaultGallery) {
+              const { id, ...payload } = item;
+              await createCloudGalleryPhoto(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudGallery(cloudConfig);
+            setGallery(reloaded);
+          } else {
+            setGallery(cloudGal);
+          }
+        } catch (e) {
+          console.error("Échec de la galerie Supabase", e);
+        }
+      };
+
+      const loadPartners = async () => {
+        try {
+          const cloudParts = await fetchCloudPartners(cloudConfig);
+          if (cloudParts.length === 0) {
+            for (const item of defaultPartners) {
+              const { id, ...payload } = item;
+              await createCloudPartner(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudPartners(cloudConfig);
+            setPartners(reloaded);
+          } else {
+            setPartners(cloudParts);
+          }
+        } catch (e) {
+          console.error("Échec des partenaires Supabase", e);
+        }
+      };
+
+      const loadEvents = async () => {
+        try {
+          const cloudEvs = await fetchCloudEvents(cloudConfig);
+          if (cloudEvs.length === 0) {
+            for (const item of defaultEvents) {
+              const { id, ...payload } = item;
+              await createCloudEvent(cloudConfig, payload);
+            }
+            const reloaded = await fetchCloudEvents(cloudConfig);
+            setEvents(reloaded);
+          } else {
+            setEvents(cloudEvs);
+          }
+        } catch (e) {
+          console.error("Échec des événements Supabase", e);
+        }
+      };
+
+      const loadSettings = async () => {
+        try {
+          // Contact settings
+          let cloudContact;
+          try {
+            cloudContact = await fetchCloudSettings(cloudConfig, 'contact');
+          } catch (err) {
+            // Non existant settings key
+          }
+          if (!cloudContact) {
+            await saveCloudSettings(cloudConfig, 'contact', defaultContact);
+            setContact(defaultContact);
+          } else {
+            setContact(cloudContact);
+          }
+
+          // Ticker settings
+          let cloudTicker;
+          try {
+            cloudTicker = await fetchCloudSettings(cloudConfig, 'ticker');
+          } catch (err) {
+            // Non existant settings key
+          }
+          if (!cloudTicker) {
+            const defTicker = "⚠️ Événement à venir : Séance de sensibilisation communautaire sur l'alimentation saine et la malnutrition infantile le 10 Juin 2026 à Calavi. | 📢 Adhésions : Les inscriptions pour devenir membre de la Société de Nutrition du Bénin (SNB) sont en cours. Envoyez votre dossier à secretariat@snb.bj !";
+            await saveCloudSettings(cloudConfig, 'ticker', defTicker);
+            setTickerText(defTicker);
+          } else {
+            setTickerText(cloudTicker);
+          }
+        } catch (e) {
+          console.error("Échec des paramètres Supabase", e);
+        }
+      };
+
+      // Premier chargement de tout le contenu
       loadMessages();
       loadAdhesions();
       loadAuditLogs();
+      loadAnnouncements();
+      loadTeam();
+      loadActivities();
+      loadGallery();
+      loadPartners();
+      loadEvents();
+      loadSettings();
 
+      // Polling des messages, adhésions et logs toutes les 15 secondes
       const interval = setInterval(() => {
         loadMessages();
         loadAdhesions();
         loadAuditLogs();
-      }, 15000); // Polling toutes les 15 secondes
+      }, 15000);
 
-      return () => clearInterval(interval);
+      // Polling des autres contenus (actualités, configurations, etc.) toutes les 60 secondes
+      const intervalContent = setInterval(() => {
+        loadAnnouncements();
+        loadTeam();
+        loadActivities();
+        loadGallery();
+        loadPartners();
+        loadEvents();
+        loadSettings();
+      }, 60000);
+
+      return () => {
+        clearInterval(interval);
+        clearInterval(intervalContent);
+      };
     }
   }, [cloudConfig.enabled, cloudConfig.supabaseUrl, cloudConfig.supabaseAnonKey]);
 
@@ -546,111 +720,261 @@ export const AppProvider = ({ children }) => {
   };
 
   // Content modifiers
-  const updateContact = (updatedContact) => {
+  const updateContact = async (updatedContact) => {
     setContact(updatedContact);
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await saveCloudSettings(cloudConfig, 'contact', updatedContact);
+      } catch (e) {
+        console.error("Échec d'écriture Supabase pour contact", e);
+      }
+    }
     logActivity("Mise à jour des coordonnées", "Coordonnées de contact ou réseaux sociaux modifiés.");
   };
 
   // Announcements
-  const addAnnouncement = (item) => {
-    const newId = announcements.length > 0 ? Math.max(...announcements.map(a => a.id)) + 1 : 1;
-    setAnnouncements([...announcements, { ...item, id: newId }]);
+  const addAnnouncement = async (item) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudAnnouncement(cloudConfig, item);
+        setAnnouncements([...announcements, { ...item, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec création actualité Supabase", e);
+        const newId = announcements.length > 0 ? Math.max(...announcements.map(a => a.id)) + 1 : 1;
+        setAnnouncements([...announcements, { ...item, id: newId }]);
+      }
+    } else {
+      const newId = announcements.length > 0 ? Math.max(...announcements.map(a => a.id)) + 1 : 1;
+      setAnnouncements([...announcements, { ...item, id: newId }]);
+    }
     logActivity("Ajout d'actualité", `Article créé : "${item.title}"`);
   };
 
-  const editAnnouncement = (item) => {
+  const editAnnouncement = async (item) => {
     setAnnouncements(announcements.map(a => a.id === item.id ? item : a));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await updateCloudAnnouncement(cloudConfig, item.id, item);
+      } catch (e) {
+        console.error("Échec modification actualité Supabase", e);
+      }
+    }
     logActivity("Modification d'actualité", `Article mis à jour : "${item.title}"`);
   };
 
-  const deleteAnnouncement = (id) => {
+  const deleteAnnouncement = async (id) => {
     const item = announcements.find(a => a.id === id);
     setAnnouncements(announcements.filter(a => a.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudAnnouncement(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression actualité Supabase", e);
+      }
+    }
     logActivity("Suppression d'actualité", `Article supprimé : "${item?.title || 'ID ' + id}"`);
   };
 
   // Team members
-  const addTeamMember = (member) => {
-    const newId = team.length > 0 ? Math.max(...team.map(t => t.id)) + 1 : 1;
-    setTeam([...team, { ...member, id: newId }]);
+  const addTeamMember = async (member) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudTeamMember(cloudConfig, member);
+        setTeam([...team, { ...member, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec ajout membre Supabase", e);
+        const newId = team.length > 0 ? Math.max(...team.map(t => t.id)) + 1 : 1;
+        setTeam([...team, { ...member, id: newId }]);
+      }
+    } else {
+      const newId = team.length > 0 ? Math.max(...team.map(t => t.id)) + 1 : 1;
+      setTeam([...team, { ...member, id: newId }]);
+    }
     logActivity("Ajout de membre du CA", `Membre ajouté : "${member.name}" (${member.role})`);
   };
 
-  const editTeamMember = (member) => {
+  const editTeamMember = async (member) => {
     setTeam(team.map(t => t.id === member.id ? member : t));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await updateCloudTeamMember(cloudConfig, member.id, member);
+      } catch (e) {
+        console.error("Échec modification membre Supabase", e);
+      }
+    }
     logActivity("Modification de membre du CA", `Membre mis à jour : "${member.name}"`);
   };
 
-  const deleteTeamMember = (id) => {
+  const deleteTeamMember = async (id) => {
     const member = team.find(t => t.id === id);
     setTeam(team.filter(t => t.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudTeamMember(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression membre Supabase", e);
+      }
+    }
     logActivity("Suppression de membre du CA", `Membre supprimé : "${member?.name || 'ID ' + id}"`);
   };
 
   // Activities
-  const addActivity = (activity) => {
-    const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1;
-    setActivities([...activities, { ...activity, id: newId }]);
+  const addActivity = async (activity) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudActivity(cloudConfig, activity);
+        setActivities([...activities, { ...activity, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec ajout activité Supabase", e);
+        const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1;
+        setActivities([...activities, { ...activity, id: newId }]);
+      }
+    } else {
+      const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1;
+      setActivities([...activities, { ...activity, id: newId }]);
+    }
     logActivity("Ajout d'axe d'activité", `Activité créée : "${activity.title}"`);
   };
 
-  const editActivity = (activity) => {
+  const editActivity = async (activity) => {
     setActivities(activities.map(a => a.id === activity.id ? activity : a));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await updateCloudActivity(cloudConfig, activity.id, activity);
+      } catch (e) {
+        console.error("Échec modification activité Supabase", e);
+      }
+    }
     logActivity("Modification d'axe d'activité", `Activité mise à jour : "${activity.title}"`);
   };
 
-  const deleteActivity = (id) => {
+  const deleteActivity = async (id) => {
     const act = activities.find(a => a.id === id);
     setActivities(activities.filter(a => a.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudActivity(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression activité Supabase", e);
+      }
+    }
     logActivity("Suppression d'axe d'activité", `Activité supprimée : "${act?.title || 'ID ' + id}"`);
   };
 
   // Gallery
-  const addGalleryPhoto = (photo) => {
-    const newId = gallery.length > 0 ? Math.max(...gallery.map(g => g.id)) + 1 : 1;
-    setGallery([...gallery, { ...photo, id: newId }]);
+  const addGalleryPhoto = async (photo) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudGalleryPhoto(cloudConfig, photo);
+        setGallery([...gallery, { ...photo, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec ajout photo Supabase", e);
+        const newId = gallery.length > 0 ? Math.max(...gallery.map(g => g.id)) + 1 : 1;
+        setGallery([...gallery, { ...photo, id: newId }]);
+      }
+    } else {
+      const newId = gallery.length > 0 ? Math.max(...gallery.map(g => g.id)) + 1 : 1;
+      setGallery([...gallery, { ...photo, id: newId }]);
+    }
     logActivity("Ajout de photo", `Photo ajoutée à la galerie : "${photo.caption || photo.url}"`);
   };
 
-  const deleteGalleryPhoto = (id) => {
+  const deleteGalleryPhoto = async (id) => {
     const photo = gallery.find(g => g.id === id);
     setGallery(gallery.filter(g => g.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudGalleryPhoto(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression photo Supabase", e);
+      }
+    }
     logActivity("Suppression de photo", `Photo retirée de la galerie : "${photo?.caption || 'ID ' + id}"`);
   };
 
   // Partners
-  const addPartner = (partner) => {
-    const newId = partners.length > 0 ? Math.max(...partners.map(p => p.id)) + 1 : 1;
-    setPartners([...partners, { ...partner, id: newId }]);
+  const addPartner = async (partner) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudPartner(cloudConfig, partner);
+        setPartners([...partners, { ...partner, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec ajout partenaire Supabase", e);
+        const newId = partners.length > 0 ? Math.max(...partners.map(p => p.id)) + 1 : 1;
+        setPartners([...partners, { ...partner, id: newId }]);
+      }
+    } else {
+      const newId = partners.length > 0 ? Math.max(...partners.map(p => p.id)) + 1 : 1;
+      setPartners([...partners, { ...partner, id: newId }]);
+    }
     logActivity("Ajout de partenaire", `Partenaire ajouté : "${partner.name}"`);
   };
 
-  const deletePartner = (id) => {
+  const deletePartner = async (id) => {
     const p = partners.find(part => part.id === id);
     setPartners(partners.filter(p => p.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudPartner(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression partenaire Supabase", e);
+      }
+    }
     logActivity("Suppression de partenaire", `Partenaire supprimé : "${p?.name || 'ID ' + id}"`);
   };
 
   // Events
-  const addEvent = (event) => {
-    const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
-    setEvents([...events, { ...event, id: newId }]);
+  const addEvent = async (event) => {
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        const cloudId = await createCloudEvent(cloudConfig, event);
+        setEvents([...events, { ...event, id: cloudId }]);
+      } catch (e) {
+        console.error("Échec ajout événement Supabase", e);
+        const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+        setEvents([...events, { ...event, id: newId }]);
+      }
+    } else {
+      const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+      setEvents([...events, { ...event, id: newId }]);
+    }
     logActivity("Ajout d'événement/rapport", `Événement créé : "${event.title}"`);
   };
 
-  const editEvent = (event) => {
+  const editEvent = async (event) => {
     setEvents(events.map(e => e.id === event.id ? event : e));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await updateCloudEvent(cloudConfig, event.id, event);
+      } catch (e) {
+        console.error("Échec modification événement Supabase", e);
+      }
+    }
     logActivity("Modification d'événement/rapport", `Événement mis à jour : "${event.title}"`);
   };
 
-  const deleteEvent = (id) => {
+  const deleteEvent = async (id) => {
     const ev = events.find(e => e.id === id);
     setEvents(events.filter(e => e.id !== id));
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await deleteCloudEvent(cloudConfig, id);
+      } catch (e) {
+        console.error("Échec suppression événement Supabase", e);
+      }
+    }
     logActivity("Suppression d'événement/rapport", `Événement supprimé : "${ev?.title || 'ID ' + id}"`);
   };
 
-  const updateTickerText = (text) => {
+  const updateTickerText = async (text) => {
     setTickerText(text);
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await saveCloudSettings(cloudConfig, 'ticker', text);
+      } catch (e) {
+        console.error("Échec d'écriture Supabase pour ticker", e);
+      }
+    }
     logActivity("Mise à jour de la banderole", `Nouveau texte : "${text.substring(0, 50)}..."`);
   };
 

@@ -387,3 +387,293 @@ export async function deleteOldCloudAuditLogs(config) {
     throw err;
   }
 }
+
+/**
+ * Generic helper to fetch data from a table
+ */
+async function fetchTable(config, tableName, orderBy = 'id.asc') {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}?select=*&order=${orderBy}`;
+  
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`
+    }
+  });
+  
+  if (!res.ok) {
+    throw new Error(`Supabase fetch failed for ${tableName} (${res.status})`);
+  }
+  
+  return await res.json();
+}
+
+/**
+ * Generic helper to post a new record and return its ID
+ */
+async function postRecord(config, tableName, payload) {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}`;
+  
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Supabase post failed for ${tableName} (${res.status}): ${errText}`);
+  }
+  
+  const data = await res.json();
+  return data[0]?.id;
+}
+
+/**
+ * Generic helper to patch a record
+ */
+async function patchRecord(config, tableName, id, payload) {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}?id=eq.${id}`;
+  
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Supabase patch failed for ${tableName} ID ${id} (${res.status}): ${errText}`);
+  }
+  
+  return true;
+}
+
+/**
+ * Generic helper to delete a record
+ */
+async function deleteRecord(config, tableName, id) {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${tableName}?id=eq.${id}`;
+  
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`
+    }
+  });
+  
+  if (!res.ok) {
+    throw new Error(`Supabase delete failed for ${tableName} ID ${id} (${res.status})`);
+  }
+  
+  return true;
+}
+
+// Announcements CRUD
+export async function fetchCloudAnnouncements(config) {
+  return await fetchTable(config, 'announcements', 'id.asc');
+}
+export async function createCloudAnnouncement(config, item) {
+  const payload = {
+    title: item.title || '',
+    theme: item.theme || '',
+    text: item.text || '',
+    fullText: item.fullText || '',
+    date: item.date || '',
+    image: item.image || ''
+  };
+  return await postRecord(config, 'announcements', payload);
+}
+export async function updateCloudAnnouncement(config, id, item) {
+  const payload = {
+    title: item.title || '',
+    theme: item.theme || '',
+    text: item.text || '',
+    fullText: item.fullText || '',
+    date: item.date || '',
+    image: item.image || ''
+  };
+  return await patchRecord(config, 'announcements', id, payload);
+}
+export async function deleteCloudAnnouncement(config, id) {
+  return await deleteRecord(config, 'announcements', id);
+}
+
+// Team Members CRUD
+export async function fetchCloudTeam(config) {
+  return await fetchTable(config, 'team_members', 'id.asc');
+}
+export async function createCloudTeamMember(config, member) {
+  const payload = {
+    name: member.name || '',
+    role: member.role || '',
+    image: member.image || ''
+  };
+  return await postRecord(config, 'team_members', payload);
+}
+export async function updateCloudTeamMember(config, id, member) {
+  const payload = {
+    name: member.name || '',
+    role: member.role || '',
+    image: member.image || ''
+  };
+  return await patchRecord(config, 'team_members', id, payload);
+}
+export async function deleteCloudTeamMember(config, id) {
+  return await deleteRecord(config, 'team_members', id);
+}
+
+// Activities CRUD
+export async function fetchCloudActivities(config) {
+  return await fetchTable(config, 'activities', 'id.asc');
+}
+export async function createCloudActivity(config, activity) {
+  const payload = {
+    title: activity.title || '',
+    description: activity.description || '',
+    image: activity.image || ''
+  };
+  return await postRecord(config, 'activities', payload);
+}
+export async function updateCloudActivity(config, id, activity) {
+  const payload = {
+    title: activity.title || '',
+    description: activity.description || '',
+    image: activity.image || ''
+  };
+  return await patchRecord(config, 'activities', id, payload);
+}
+export async function deleteCloudActivity(config, id) {
+  return await deleteRecord(config, 'activities', id);
+}
+
+// Gallery CRUD
+export async function fetchCloudGallery(config) {
+  return await fetchTable(config, 'gallery_photos', 'id.asc');
+}
+export async function createCloudGalleryPhoto(config, photo) {
+  const payload = {
+    url: photo.url || '',
+    caption: photo.caption || ''
+  };
+  return await postRecord(config, 'gallery_photos', payload);
+}
+export async function deleteCloudGalleryPhoto(config, id) {
+  return await deleteRecord(config, 'gallery_photos', id);
+}
+
+// Partners CRUD
+export async function fetchCloudPartners(config) {
+  return await fetchTable(config, 'partners', 'id.asc');
+}
+export async function createCloudPartner(config, partner) {
+  const payload = {
+    name: partner.name || '',
+    logo: partner.logo || ''
+  };
+  return await postRecord(config, 'partners', payload);
+}
+export async function deleteCloudPartner(config, id) {
+  return await deleteRecord(config, 'partners', id);
+}
+
+// Events CRUD
+export async function fetchCloudEvents(config) {
+  return await fetchTable(config, 'events', 'id.asc');
+}
+export async function createCloudEvent(config, event) {
+  const payload = {
+    title: event.title || '',
+    date: event.date || '',
+    description: event.description || '',
+    fullText: event.fullText || '',
+    image: event.image || '',
+    videoUrl: event.videoUrl || '',
+    subImages: event.subImages || [],
+    activities: event.activities || [],
+    downloads: event.downloads || []
+  };
+  return await postRecord(config, 'events', payload);
+}
+export async function updateCloudEvent(config, id, event) {
+  const payload = {
+    title: event.title || '',
+    date: event.date || '',
+    description: event.description || '',
+    fullText: event.fullText || '',
+    image: event.image || '',
+    videoUrl: event.videoUrl || '',
+    subImages: event.subImages || [],
+    activities: event.activities || [],
+    downloads: event.downloads || []
+  };
+  return await patchRecord(config, 'events', id, payload);
+}
+export async function deleteCloudEvent(config, id) {
+  return await deleteRecord(config, 'events', id);
+}
+
+// Settings Key-Value (Contact & TickerText)
+export async function fetchCloudSettings(config, key) {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/site_settings?key=eq.${key}&select=value`;
+  
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`
+    }
+  });
+  
+  if (!res.ok) {
+    throw new Error(`Supabase settings fetch failed for key ${key} (${res.status})`);
+  }
+  
+  const data = await res.json();
+  return data[0]?.value;
+}
+
+export async function saveCloudSettings(config, key, value) {
+  const { supabaseUrl, supabaseAnonKey } = config;
+  const url = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/site_settings`;
+  
+  const payload = {
+    key: key,
+    value: value
+  };
+  
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Supabase settings save failed for key ${key} (${res.status}): ${errText}`);
+  }
+  
+  return true;
+}
+
