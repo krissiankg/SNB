@@ -630,7 +630,7 @@ export const AppProvider = ({ children }) => {
           } catch (err) {
             // Non existant settings key
           }
-          if (!cloudContact) {
+          if (cloudContact === undefined || cloudContact === null) {
             await saveCloudSettings(cloudConfig, 'contact', defaultContact);
             setContact(defaultContact);
           } else {
@@ -644,7 +644,7 @@ export const AppProvider = ({ children }) => {
           } catch (err) {
             // Non existant settings key
           }
-          if (!cloudTicker) {
+          if (cloudTicker === undefined || cloudTicker === null) {
             const defTicker = "⚠️ Événement à venir : Séance de sensibilisation communautaire sur l'alimentation saine et la malnutrition infantile le 10 Juin 2026 à Calavi. | 📢 Adhésions : Les inscriptions pour devenir membre de la Société de Nutrition du Bénin (SNB) sont en cours. Envoyez votre dossier à secretariat@snb.bj !";
             await saveCloudSettings(cloudConfig, 'ticker', defTicker);
             setTickerText(defTicker);
