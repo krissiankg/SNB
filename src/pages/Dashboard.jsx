@@ -289,8 +289,7 @@ export default function Dashboard() {
       {/* Sidebar navigation */}
       <aside className="dashboard-sidebar">
         <div className="dashboard-sidebar-header">
-          <img 
-            src="/media/LOGO-SNB.png" 
+          <img loading="lazy" src="/media/LOGO-SNB.png" 
             alt="SNB Logo" 
             style={{ height: '35px', width: 'auto', objectFit: 'contain' }} 
           />
@@ -536,7 +535,7 @@ export default function Dashboard() {
                 {announcements.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.image} alt="" className="db-table-thumb" />
+                      <img loading="lazy" src={item.image} alt="" className="db-table-thumb" />
                     </td>
                     <td style={{ fontWeight: '600' }}>{item.title}</td>
                     <td>
@@ -577,7 +576,7 @@ export default function Dashboard() {
                 {team.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.image} alt="" className="db-table-thumb" style={{ borderRadius: '50%' }} />
+                      <img loading="lazy" src={item.image} alt="" className="db-table-thumb" style={{ borderRadius: '50%' }} />
                     </td>
                     <td style={{ fontWeight: '600' }}>{item.name}</td>
                     <td>{item.role}</td>
@@ -613,7 +612,7 @@ export default function Dashboard() {
                 {activities.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.image} alt="" className="db-table-thumb" />
+                      <img loading="lazy" src={item.image} alt="" className="db-table-thumb" />
                     </td>
                     <td style={{ fontWeight: '600' }}>{item.title}</td>
                     <td style={{ maxWidth: '400px' }}>{item.description}</td>
@@ -649,7 +648,7 @@ export default function Dashboard() {
                 {gallery.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.url} alt="" className="db-table-thumb" />
+                      <img loading="lazy" src={item.url} alt="" className="db-table-thumb" />
                     </td>
                     <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.url}</td>
                     <td>{item.caption || 'Aucune légende'}</td>
@@ -682,7 +681,7 @@ export default function Dashboard() {
                 {partners.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.logo} alt="" className="db-table-thumb" style={{ objectFit: 'contain', backgroundColor: '#F8FAFC' }} />
+                      <img loading="lazy" src={item.logo} alt="" className="db-table-thumb" style={{ objectFit: 'contain', backgroundColor: '#F8FAFC' }} />
                     </td>
                     <td style={{ fontWeight: '600' }}>{item.name}</td>
                     <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.logo}</td>
@@ -716,7 +715,7 @@ export default function Dashboard() {
                 {events.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.image} alt="" className="db-table-thumb" />
+                      <img loading="lazy" src={item.image} alt="" className="db-table-thumb" />
                     </td>
                     <td style={{ fontWeight: '600' }}>{item.title}</td>
                     <td>{item.date}</td>

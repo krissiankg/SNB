@@ -162,8 +162,7 @@ export default function Contact() {
           <div className="partners-carousel">
             <div className="partners-track">
               {partners.map((partner) => (
-                <img 
-                  key={partner.id} 
+                <img loading="lazy" key={partner.id} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
@@ -172,8 +171,7 @@ export default function Contact() {
               ))}
               {/* Duplicate for infinite loop */}
               {partners.map((partner) => (
-                <img 
-                  key={`${partner.id}-dup`} 
+                <img loading="lazy" key={`${partner.id}-dup`} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 

@@ -140,7 +140,7 @@ export default function Home() {
                 onClick={() => setActiveAnnouncement(announcement)}
               >
                 <div className="news-img-wrapper">
-                  <img src={announcement.image} alt={announcement.title} className="news-img" />
+                  <img loading="lazy" src={announcement.image} alt={announcement.title} className="news-img" />
                   <span className="news-badge">Actualité</span>
                 </div>
                 <div className="news-content">
@@ -183,8 +183,7 @@ export default function Home() {
           <div className="partners-carousel">
             <div className="partners-track">
               {partners.map((partner) => (
-                <img 
-                  key={partner.id} 
+                <img loading="lazy" key={partner.id} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
@@ -193,8 +192,7 @@ export default function Home() {
               ))}
               {/* Duplicate for infinite loop */}
               {partners.map((partner) => (
-                <img 
-                  key={`${partner.id}-dup`} 
+                <img loading="lazy" key={`${partner.id}-dup`} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
@@ -239,7 +237,7 @@ export default function Home() {
               
               {activeAnnouncement.image && (
                 <div style={{ height: '320px', width: '100%', overflow: 'hidden', borderRadius: 'var(--radius-md)', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' }}>
-                  <img src={activeAnnouncement.image} alt={activeAnnouncement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img loading="lazy" src={activeAnnouncement.image} alt={activeAnnouncement.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
               

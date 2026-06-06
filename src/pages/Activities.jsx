@@ -78,7 +78,7 @@ export default function Activities() {
             {activities.map((act) => (
               <div key={act.id} className="card-news" style={{ borderTop: '4px solid var(--primary)' }}>
                 <div className="news-img-wrapper" style={{ height: '180px' }}>
-                  <img src={act.image} alt={act.title} className="news-img" />
+                  <img loading="lazy" src={act.image} alt={act.title} className="news-img" />
                 </div>
                 <div className="news-content" style={{ padding: '20px' }}>
                   <h3 className="news-title" style={{ fontSize: '1.15rem', marginBottom: '10px' }}>{act.title}</h3>
@@ -109,7 +109,7 @@ export default function Activities() {
                 onClick={() => handleSelectEvent(report)}
               >
                 <div className="news-img-wrapper" style={{ height: '260px' }}>
-                  <img src={report.image} alt={report.title} className="news-img" />
+                  <img loading="lazy" src={report.image} alt={report.title} className="news-img" />
                   <span className="news-badge" style={{ backgroundColor: 'var(--accent)', color: 'var(--bg-dark)' }}>
                     Rapport
                   </span>
@@ -147,7 +147,7 @@ export default function Activities() {
           <div className="gallery-grid-custom">
             {gallery.map((photo, idx) => (
               <div key={photo.id} className="gallery-card-custom" onClick={() => openLightbox(gallery, idx)}>
-                <img src={photo.url} alt={photo.caption} className="gallery-img" />
+                <img loading="lazy" src={photo.url} alt={photo.caption} className="gallery-img" />
                 <div className="gallery-overlay">
                   <ZoomIn size={28} />
                 </div>
@@ -183,7 +183,7 @@ export default function Activities() {
               </h2>
               
               <div style={{ height: '320px', width: '100%', overflow: 'hidden', borderRadius: 'var(--radius-md)', marginBottom: '24px', boxShadow: 'var(--shadow-sm)' }}>
-                <img src={activeEvent.image} alt={activeEvent.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img loading="lazy" src={activeEvent.image} alt={activeEvent.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               
               <p className="event-dropcap" style={{ 
@@ -236,7 +236,7 @@ export default function Activities() {
                               className="event-photo-item"
                               onClick={() => openLightbox(activeEvent.activities[activeTabIdx].images, imgIdx)}
                             >
-                              <img src={imgUrl} alt="" />
+                              <img loading="lazy" src={imgUrl} alt="" />
                               <div className="event-photo-overlay">
                                 <span className="event-photo-caption">
                                   {imgIdx === 0 && activeEvent.activities[activeTabIdx].images.length > 6 ? "Affiche" : `Photo ${imgIdx + 1}`}
@@ -324,7 +324,7 @@ export default function Activities() {
                         className="event-photo-item"
                         onClick={() => openLightbox(activeEvent.subImages, imgIdx)}
                       >
-                        <img src={imgUrl} alt="" />
+                        <img loading="lazy" src={imgUrl} alt="" />
                         <div className="event-photo-overlay">
                           <span className="event-photo-caption">Photo {imgIdx + 1}</span>
                           <ZoomIn size={16} />
@@ -364,7 +364,7 @@ export default function Activities() {
               </>
             )}
 
-            <img src={lightbox.images[lightbox.currentIndex].url} alt="" className="lightbox-img" style={{ maxHeight: '80vh', objectFit: 'contain' }} />
+            <img loading="lazy" src={lightbox.images[lightbox.currentIndex].url} alt="" className="lightbox-img" style={{ maxHeight: '80vh', objectFit: 'contain' }} />
             
             {lightbox.images[lightbox.currentIndex].caption && (
               <div style={{ 
@@ -397,8 +397,7 @@ export default function Activities() {
           <div className="partners-carousel">
             <div className="partners-track">
               {partners.map((partner) => (
-                <img 
-                  key={partner.id} 
+                <img loading="lazy" key={partner.id} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
@@ -407,8 +406,7 @@ export default function Activities() {
               ))}
               {/* Duplicate for infinite loop */}
               {partners.map((partner) => (
-                <img 
-                  key={`${partner.id}-dup`} 
+                <img loading="lazy" key={`${partner.id}-dup`} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 

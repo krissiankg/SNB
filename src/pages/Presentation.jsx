@@ -13,7 +13,7 @@ function BoardSlider({ team }) {
             <div key={member.id} className="slider-item">
               <div className="team-card" style={{ height: '100%', marginBottom: 0 }}>
                 <div className="team-avatar-wrapper">
-                  <img src={member.image} alt={member.name} className="team-avatar" />
+                  <img loading="lazy" src={member.image} alt={member.name} className="team-avatar" />
                 </div>
                 <div className="team-info">
                   <h4 className="team-name">{member.name}</h4>
@@ -27,7 +27,7 @@ function BoardSlider({ team }) {
             <div key={`${member.id}-dup`} className="slider-item" aria-hidden="true">
               <div className="team-card" style={{ height: '100%', marginBottom: 0 }}>
                 <div className="team-avatar-wrapper">
-                  <img src={member.image} alt={member.name} className="team-avatar" />
+                  <img loading="lazy" src={member.image} alt={member.name} className="team-avatar" />
                 </div>
                 <div className="team-info">
                   <h4 className="team-name">{member.name}</h4>
@@ -82,8 +82,7 @@ export default function Presentation() {
           <div className="presentation-intro-card">
             <div className="presentation-grid">
               <div className="presentation-img-wrapper">
-                <img 
-                  src="/media/photo-de-famille-10.jpg" 
+                <img loading="lazy" src="/media/photo-de-famille-10.jpg" 
                   alt="Réunion SNB" 
                   className="presentation-img"
                 />
@@ -145,8 +144,7 @@ export default function Presentation() {
           <div className="partners-carousel">
             <div className="partners-track">
               {partners.map((partner) => (
-                <img 
-                  key={partner.id} 
+                <img loading="lazy" key={partner.id} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
@@ -155,8 +153,7 @@ export default function Presentation() {
               ))}
               {/* Duplicate for infinite loop */}
               {partners.map((partner) => (
-                <img 
-                  key={`${partner.id}-dup`} 
+                <img loading="lazy" key={`${partner.id}-dup`} 
                   src={partner.logo} 
                   alt={partner.name} 
                   title={partner.name} 
