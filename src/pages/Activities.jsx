@@ -395,15 +395,28 @@ export default function Activities() {
             Nos Partenaires et Associés
           </h3>
           <div className="partners-carousel">
-            {partners.map((partner) => (
-              <img 
-                key={partner.id} 
-                src={partner.logo} 
-                alt={partner.name} 
-                title={partner.name} 
-                className="partner-logo" 
-              />
-            ))}
+            <div className="partners-track">
+              {partners.map((partner) => (
+                <img 
+                  key={partner.id} 
+                  src={partner.logo} 
+                  alt={partner.name} 
+                  title={partner.name} 
+                  className="partner-logo" 
+                />
+              ))}
+              {/* Duplicate for infinite loop */}
+              {partners.map((partner) => (
+                <img 
+                  key={`${partner.id}-dup`} 
+                  src={partner.logo} 
+                  alt={partner.name} 
+                  title={partner.name} 
+                  className="partner-logo" 
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
