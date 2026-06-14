@@ -42,7 +42,7 @@ export default function Dashboard() {
     partners, addPartner, deletePartner,
     events, addEvent, editEvent, deleteEvent,
     contact, updateContact,
-    tickerText, updateTickerText,
+    tickerText, isTickerActive, updateTickerText, updateTickerActive,
     messages, deleteMessage, markMessageAsRead,
     adhesions, deleteAdhesion, changeAdhesionStatus,
     cloudConfig, updateCloudConfig,
@@ -90,6 +90,7 @@ export default function Dashboard() {
   
   const [eventForm, setEventForm] = useState({ title: '', date: '', description: '', fullText: '', image: '', videoUrl: '', subImages: [] });
   const [tickerInput, setTickerInput] = useState(tickerText);
+  const [isTickerActiveInput, setIsTickerActiveInput] = useState(isTickerActive);
 
   const [showCloudSettings, setShowCloudSettings] = useState(false);
   const [tempCloudConfig, setTempCloudConfig] = useState({
@@ -499,6 +500,7 @@ export default function Dashboard() {
             <form className="form-panel" onSubmit={(e) => {
               e.preventDefault();
               updateTickerText(tickerInput);
+              updateTickerActive(isTickerActiveInput);
               showNotification('Banderole déroulante mise à jour avec succès !');
             }}>
               <h3 style={{ color: 'var(--primary)', fontFamily: 'var(--font-heading)', fontSize: '1.25rem', marginBottom: '16px' }}>
@@ -514,6 +516,18 @@ export default function Dashboard() {
                   onChange={(e) => setTickerInput(e.target.value)}
                   placeholder="Ex: ⚠️ Événement à venir : Conférence nationale..."
                 />
+              </div>
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', marginBottom: '20px' }}>
+                <input 
+                  type="checkbox" 
+                  id="tickerActive" 
+                  checked={isTickerActiveInput}
+                  onChange={(e) => setIsTickerActiveInput(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }}
+                />
+                <label htmlFor="tickerActive" style={{ fontWeight: '600', color: 'var(--text-color)', cursor: 'pointer' }}>
+                  Afficher la banderole sur le site (Ouvrir / Fermer)
+                </label>
               </div>
               <button type="submit" className="btn btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
                 Mettre à jour la banderole

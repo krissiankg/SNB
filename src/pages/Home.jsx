@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import { ArrowRight, Check, HelpCircle, Calendar, X, Award, Shield, Target } from 'lucide-react';
 
 export default function Home() {
-  const { announcements, partners, setActivePage, tickerText } = useContext(AppContext);
+  const { announcements, partners, setActivePage, tickerText, isTickerActive } = useContext(AppContext);
   const [activeAnnouncement, setActiveAnnouncement] = useState(null);
 
   const handleNavClick = (pageId) => {
@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div>
       {/* Ticker Banner */}
-      {tickerText && (
+      {isTickerActive && tickerText && tickerText.trim() !== '' && (
         <div className="ticker-banner">
           <div className="ticker-wrap">
             <span className="ticker-item">{tickerText}</span>

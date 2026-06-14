@@ -355,6 +355,11 @@ export const AppProvider = ({ children }) => {
     return saved !== null ? saved : "⚠️ Événement à venir : Séance de sensibilisation communautaire sur l'alimentation saine et la malnutrition infantile le 10 Juin 2026 à Calavi. | 📢 Adhésions : Les inscriptions pour devenir membre de la Société de Nutrition du Bénin (SNB) sont en cours. Envoyez votre dossier à secretariat@snb.bj !";
   });
 
+  const [isTickerActive, setIsTickerActive] = useState(() => {
+    const saved = localStorage.getItem('snb_ticker_active_v1');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
   const [team, setTeam] = useState(() => {
     const saved = localStorage.getItem('snb_team_v4');
     return saved ? JSON.parse(saved) : defaultTeam;
@@ -429,6 +434,10 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('snb_ticker_v1', tickerText);
   }, [tickerText]);
+
+  useEffect(() => {
+    localStorage.setItem('snb_ticker_active_v1', JSON.stringify(isTickerActive));
+  }, [isTickerActive]);
 
   useEffect(() => {
     localStorage.setItem('snb_team_v4', JSON.stringify(team));
@@ -650,6 +659,19 @@ export const AppProvider = ({ children }) => {
             setTickerText(defTicker);
           } else {
             setTickerText(cloudTicker);
+          }
+
+          let cloudTickerActive;
+          try {
+            cloudTickerActive = await fetchCloudSettings(cloudConfig, 'ticker_active');
+          } catch (err) {
+            // Non existant settings key
+          }
+          if (cloudTickerActive === undefined || cloudTickerActive === null) {
+            await saveCloudSettings(cloudConfig, 'ticker_active', true);
+            setIsTickerActive(true);
+          } else {
+            setIsTickerActive(cloudTickerActive);
           }
         } catch (e) {
           console.error("Échec des paramètres Supabase", e);
@@ -978,6 +1000,18 @@ export const AppProvider = ({ children }) => {
     logActivity("Mise à jour de la banderole", `Nouveau texte : "${text.substring(0, 50)}..."`);
   };
 
+  const updateTickerActive = async (isActive) => {
+    setIsTickerActive(isActive);
+    if (cloudConfig.enabled && cloudConfig.supabaseUrl && cloudConfig.supabaseAnonKey) {
+      try {
+        await saveCloudSettings(cloudConfig, 'ticker_active', isActive);
+      } catch (e) {
+        console.error("Échec d'écriture Supabase pour ticker_active", e);
+      }
+    }
+    logActivity("Visibilité banderole", `Banderole ${isActive ? 'activée' : 'désactivée'}.`);
+  };
+
   const addMessage = async (msg) => {
     const formattedDate = new Date().toLocaleString('fr-FR', {
       day: 'numeric',
@@ -1108,7 +1142,9 @@ export const AppProvider = ({ children }) => {
       activePage,
       setActivePage,
       tickerText,
+      isTickerActive,
       updateTickerText,
+      updateTickerActive,
       updateContact,
       addAnnouncement,
       editAnnouncement,
